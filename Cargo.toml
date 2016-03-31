@@ -1,0 +1,10 @@
+[package]
+name = "gliumtut"
+version = "0.1.0"
+authors = ["Martin Heistermann <git@mheistermann.de>"]
+
+[dependencies]
+glium = { path = "../../glium" }
+image = "*"
+zip = "*"
+cgmath = "*"
