@@ -8,3 +8,4 @@ glium = { path = "../../glium" }
 image = "*"
 zip = "*"
 cgmath = "*"
+notify = "^2.5.0"

@@ -3,10 +3,15 @@ extern crate glium;
 extern crate image;
 extern crate zip;
 extern crate cgmath;
+extern crate notify;
+
 
 use std::io::Read;
 use std::fs::File;
 use std::io::Cursor;
+
+use notify::{RecommendedWatcher, Error, Watcher};
+use std::sync::mpsc::channel;
 
 use cgmath::{Vector, Vector2, Vector3};
 use cgmath::{Basis3};
@@ -16,12 +21,14 @@ use cgmath::{Rotation, Rotation3};
 use cgmath::{PerspectiveFov};
 
 use glium::glutin::{Event, MouseButton, ElementState};
+use glium::debug::DebugCallbackBehavior;
 
 use glium::backend::Facade;
 //use glium::texture::{Texture2d, RawImage2d};
 use glium::texture::{UncompressedUintFormat, MipmapsOption};
 use glium::texture::pixel_buffer::PixelBuffer;
 use glium::texture::unsigned_texture2d_array::UnsignedTexture2dArray;
+use glium::uniforms::Sampler;
 //use glium::buffer::{Buffer, BufferMode, BufferSlice};
 
 struct Lightfield {
@@ -35,8 +42,8 @@ impl Lightfield {
         let mut archive = zip::ZipArchive::new(zipfile).unwrap();
 
         // FIXME n's and sizes
-        let nx = 17;
-        let ny = 17;
+        let nx = 2;
+        let ny = 2;
         let width = 1400;
         let height = 800;
 
@@ -73,6 +80,7 @@ impl Lightfield {
             0..width,
             0..height, 
             layer..layer+1);
+            break; // XXX debug
         }
         Lightfield {tex: tex}
     }
@@ -82,7 +90,7 @@ fn main() {
     use glium::{DisplayBuild, Surface};
     let display = glium::glutin::WindowBuilder::new()
         .with_vsync()
-        .build_glium()
+        .build_glium_debug(DebugCallbackBehavior::PrintAll)
         .unwrap();
 
 
@@ -126,11 +134,11 @@ fn main() {
         in vec2 v_tex_coords;
         out vec4 color;
 
-        //uniform sampler2DArray tex;
+        uniform usampler2DArray tex;
 
         void main() {
-            //color = texture(tex, vec3(v_tex_coords, 1));
-            color = vec4(1,0,0,1);
+            color = texture(tex, vec3(v_tex_coords, 1));
+            //color = vec4(1,0,0,1);
         }
     "#;
 
@@ -140,7 +148,8 @@ fn main() {
         Ok(prog) => Some(prog)
     }.unwrap();
 
-    //let lf = Lightfield::new(&display, "chess.jpg.zip");
+    let lf = Lightfield::new(&display, "chess.jpg.zip");
+    let lf_sampler = Sampler::new(&lf.tex);
 
     let mut cursor_pos          = Vector2::new(0f32, 0f32);
     let mut cursor_startpos     = Vector2::new(0f32, 0f32);
@@ -183,7 +192,7 @@ fn main() {
         }
 
         let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
+        target.clear_color(0.0, 0.0, 0.0, 1.0);
         let (width, height) = target.get_dimensions();
 
         let mat_projection: Matrix4<f32> =  PerspectiveFov {
@@ -197,16 +206,19 @@ fn main() {
             model:      Into::<[[f32; 4]; 4]>::into(mat_model),
             view:       Into::<[[f32; 4]; 4]>::into(mat_view),
             projection: Into::<[[f32; 4]; 4]>::into(mat_projection),
-            //tex: &lf.tex,
+            tex: lf_sampler,
         };
+
 
         target.draw(&vertex_buffer, &indices, &program, &uniforms,
                     &Default::default()).unwrap();
+
         target.finish().unwrap();
+        /*
         println!("model: {:#?}", mat_model);
         println!("view: {:#?}", mat_view);
         println!("projection: {:#?}", mat_projection);
         println!("");
-
+        */
     }
 }
