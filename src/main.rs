@@ -5,10 +5,6 @@ extern crate zip;
 extern crate cgmath;
 extern crate notify;
 
-
-use notify::{RecommendedWatcher, Error, Watcher};
-use std::sync::mpsc::channel;
-
 use cgmath::{Vector, Vector2, Vector3};
 use cgmath::{Basis3};
 use cgmath::{Matrix, SquareMatrix, Matrix3, Matrix4};
@@ -25,6 +21,10 @@ use glium::uniforms::Sampler;
 
 mod lightfield;
 use lightfield::Lightfield;
+
+mod reloading_program;
+use reloading_program::ReloadingProgram;
+
 
 
 fn main() {
@@ -52,42 +52,7 @@ fn main() {
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
-    let vertex_shader_src = r#"
-        #version 330
-
-        in vec2 position;
-        in vec2 tex_coords;
-        out vec2 v_tex_coords;
-
-        uniform mat4 model;
-        uniform mat4 view;
-        uniform mat4 projection;
-
-        void main() {
-            v_tex_coords = tex_coords;
-            gl_Position = projection * view * model * vec4(position, 0.0, 1.0);
-        }
-    "#;
-
-    let fragment_shader_src = r#"
-        #version 330
-
-        in vec2 v_tex_coords;
-        out vec4 color;
-
-        uniform usampler2DArray tex;
-
-        void main() {
-            color = texture(tex, vec3(v_tex_coords, 0));
-            //color = vec4(1,0,0,1);
-        }
-    "#;
-
-    let res = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None);
-    let program = match res {
-        Err(err) => {println!("{}", err); None}
-        Ok(prog) => Some(prog)
-    }.unwrap();
+    let mut reloading_program = ReloadingProgram::from_source(&display, "shaders/lightfield.vsh", "shaders/lightfield.fsh", None);
 
     let lf = Lightfield::new(&display, "chess.jpg.zip");
     let lf_sampler = Sampler::new(&lf.tex);
@@ -101,7 +66,24 @@ fn main() {
     let mut mat_view = Matrix4::<f32>::identity();
     mat_view[3][2] = -5.0;
     let mut window_size = display.get_window().unwrap().get_inner_size_pixels().unwrap();
+    let mut shaders_broken = false;
     loop {
+        if shaders_broken {
+            println!("Shaders are broken, waiting for updated shader before resuming...");
+            reloading_program.wait_for_change();
+        }
+        let program = match reloading_program.current() {
+            &Err(ref err) => {
+                println!("Error compiling shader: {:?}.", err);
+                shaders_broken = true;
+                continue
+            }
+            &Ok(ref prog) => {
+                shaders_broken = false;
+                prog
+            }
+        };
+
         for ev in display.poll_events() {
             match ev {
                 Event::Closed => return,
