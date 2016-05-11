@@ -25,8 +25,8 @@ impl Lightfield {
         let mut archive = zip::ZipArchive::new(zipfile).unwrap();
 
         // FIXME n's and sizes
-        let nx = 2;
-        let ny = 2;
+        let nx = 1;
+        let ny = 1;
         let width = 1400;
         let height = 800;
 
@@ -53,7 +53,7 @@ impl Lightfield {
             let image_dimensions = image.dimensions();
             assert!(image_dimensions == (width, height));
             //let image = glium::texture::RawImage2d::from_raw_rgba_reversed(image.into_raw(), image_dimensions);
-            let layer = iy*nx+ix;
+            let layer = 0; // iy*nx+ix;
             println!("loading layer {}", layer);
             let size = width * height * 4;
             let buffer = PixelBuffer::new_empty(facade, size as usize);
