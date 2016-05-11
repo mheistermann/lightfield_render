@@ -4,6 +4,8 @@ use std::io;
 use std::io::Read;
 use std::fs::File;
 use std::path::Path;
+use std::thread::sleep;
+use std::time::Duration;
 
 use glium::Program;
 use glium::program::{ProgramCreationError, ProgramCreationInput};
@@ -79,6 +81,7 @@ impl<'a, F: Facade + 'a> ReloadingProgram<'a, F> {
             let (tx, rx) = channel();
             let w: Result<RecommendedWatcher, Error> = Watcher::new(tx);
             let mut watcher = w.unwrap();
+            watcher.watch("shaders"); // XXX TODO FIXME
             watcher.watch(&vertex_shader_file).unwrap();
             watcher.watch(&fragment_shader_file).unwrap();
             geometry_shader_file.map(|x| watcher.watch(x).unwrap());
@@ -114,6 +117,8 @@ impl<'a, F: Facade + 'a> ReloadingProgram<'a, F> {
         }
         if needs_recompile {
             println!("recompiling shaders");
+            sleep(Duration::from_millis(100)); // XXX so hackish!
+            println!("ok, waited long enough, let's do it!");
             let prog = self.info.create(self.facade);
             self.current = prog;
         }
