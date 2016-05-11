@@ -5,14 +5,14 @@ extern crate zip;
 extern crate cgmath;
 extern crate notify;
 
-use cgmath::{Vector, Vector2, Vector3};
+use cgmath::{Vector, Vector2, Vector3, Vector4};
 use cgmath::{Basis3};
 use cgmath::{Matrix, SquareMatrix, Matrix3, Matrix4};
 use cgmath::{Angle, Rad, Deg};
 use cgmath::{Rotation, Rotation3};
 use cgmath::{PerspectiveFov};
 
-use glium::glutin::{Event, MouseButton, ElementState};
+use glium::glutin::{Event, MouseButton, ElementState, MouseScrollDelta};
 use glium::debug::DebugCallbackBehavior;
 
 //use glium::texture::{Texture2d, RawImage2d};
@@ -61,7 +61,9 @@ fn main() {
     let mut cursor_startpos     = Vector2::new(0f32, 0f32);
     let mut cursor_totaloff     = Vector2::new(0f32, 0f32);
     let mut cursor_totaloff_old = Vector2::new(0f32, 0f32);
+    let mut scale = 1f32;
     let mut mouse_pressed = false;
+    let mut mouse_scrolled = false;
     let mut mat_model = Matrix4::<f32>::identity();
     let mut mat_view = Matrix4::<f32>::identity();
     mat_view[3][2] = -5.0;
@@ -102,16 +104,24 @@ fn main() {
                     cursor_totaloff_old = cursor_totaloff;
                     mouse_pressed = false;
                 },
+                Event::MouseWheel(MouseScrollDelta::LineDelta(_, lines)) => {
+                    scale *= f32::powf(1.1, lines);
+                    //println!("scroll: {}, scale {}", lines, scale);
+                    mouse_scrolled = true;
+                },
                 _ => ()
             }
         }
-        if mouse_pressed {
+        if mouse_pressed || mouse_scrolled {
             let offset = Vector2::from((cursor_startpos - cursor_pos));
             cursor_totaloff = cursor_totaloff_old + offset;
             //println!("{:?}", cursor_totaloff);
             let yaw   = Rad::<f32>::full_turn() * cursor_totaloff.x;
             let pitch   = Rad::<f32>::full_turn() * cursor_totaloff.y;
-            mat_model = Matrix4::<f32>::from(Matrix3::from_euler(pitch, yaw, Rad::zero()));
+            let mat_rot = Matrix4::<f32>::from(Matrix3::from_euler(pitch, yaw, Rad::zero()));
+            let mat_scale = Matrix4::<f32>::from_diagonal(Vector4::new(scale, scale, scale, 1.0));
+            mat_model = mat_rot * mat_scale;
+            mouse_scrolled = false; // only recompute once!
         }
 
         let mut target = display.draw();
