@@ -56,7 +56,10 @@ impl Lightfield {
             let layer = 0; // iy*nx+ix;
             println!("loading layer {}", layer);
             let size = width * height * 4;
-            let buffer = PixelBuffer::new_empty(facade, size as usize);
+            // TODO: due to wrong pixelbuffer format, texture upload uses format = GL_RED_INTEGER
+            // how can i write() to a pixelbuffer with T=(u8,u8,u8,u8) from a [u8] src?
+            //let buffer = PixelBuffer::<(u8, u8, u8, u8)>::new_empty(facade, size as usize);
+            let buffer = PixelBuffer::<u8>::new_empty(facade, size as usize);
             buffer.write(&image.into_raw());
             assert!(layer<n);
             tex.main_level().raw_upload_from_pixel_buffer(buffer.as_slice(),
