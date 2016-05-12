@@ -3,7 +3,7 @@ name = "lightfield_render"
 version = "0.1.0"
 dependencies = [
  "cgmath 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "glium 0.14.0",
+ "glium 0.14.0 (git+https://github.com/mheistermann/glium)",
  "image 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lightfield_loader 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "notify 2.5.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -300,6 +300,7 @@ dependencies = [
 [[package]]
 name = "glium"
 version = "0.14.0"
+source = "git+https://github.com/mheistermann/glium#af8379a95d7e57cc01b36a76a32d63761c944a15"
 dependencies = [
  "backtrace 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "gl_generator 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",

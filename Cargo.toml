@@ -11,4 +11,4 @@ notify = "^2.5.0"
 zip = "*"
 
 [dependencies.glium]
-path = "../glium"
+git = "https://github.com/mheistermann/glium"
