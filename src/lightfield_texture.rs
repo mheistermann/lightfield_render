@@ -31,9 +31,7 @@ impl LightfieldTexture {
         let lf = Lightfield::from_zip(zip_filename).unwrap();
 
         // FIXME n's and sizes
-        let nx = 1;
-        let ny = 1;
-        let n = nx * ny;
+        let nlayers = lf.views.len() as u32;
         let img0 = &lf.views[0].image;
         let width = img0.width();
         let height = img0.height();
@@ -44,10 +42,11 @@ impl LightfieldTexture {
                                                     MipmapsOption::NoMipmap,
                                                     width,
                                                     height,
-                                                    n)
+                                                    nlayers)
                       .unwrap();
 
-        for view in &lf.views {
+        for (_layeridx, view) in lf.views.iter().enumerate() {
+            let layeridx = _layeridx as u32;
             let image = &view.image;
             assert!(image.width() == width);
             assert!(image.height() == height);
@@ -57,9 +56,7 @@ impl LightfieldTexture {
                     panic!("Cannot handle this image type");
                 }
             }
-            let layer = 0; // iy*nx+ix;
-            println!("loading layer {}", layer);
-            assert!(layer < n);
+            println!("loading layer {}", layeridx);
             // TODO: due to wrong pixelbuffer format, texture upload uses format = GL_RED_INTEGER
             // how can i write() to a pixelbuffer with T=(u8,u8,u8,u8) from a [u8] src?
             let buffer = PixelBuffer::<(u8, u8, u8)>::new_empty(facade, num_pixels);
@@ -74,14 +71,11 @@ impl LightfieldTexture {
             */
             let rgb_iter = pixels.chunks(3).map(|v| (v[0], v[1], v[2]));
             let tuples: Vec<(u8,u8,u8)> = Vec::from_iter(rgb_iter);
-            println!("pixels: {}", pixels.len());
-            println!("tuples: {}", tuples.len());
             buffer.write(tuples.as_slice());
             tex.main_level().raw_upload_from_pixel_buffer(buffer.as_slice(),
                                                           0..width,
                                                           0..height,
-                                                          layer..layer + 1);
-            break; // XXX debug
+                                                          layeridx..layeridx + 1);
         }
         unsafe { tex.generate_mipmaps() };
         LightfieldTexture { tex: tex }
