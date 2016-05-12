@@ -92,9 +92,9 @@ fn main() {
                 Event::Resized(w,h) => {
                     window_size = (w,h);
                 },
-                Event::MouseMoved(m) => {
-                    cursor_pos.x = m.0 as f32 / window_size.0 as f32 - 0.5;
-                    cursor_pos.y = m.1 as f32 / window_size.1 as f32 - 0.5;
+                Event::MouseMoved(x, y) => {
+                    cursor_pos.x = x as f32 / window_size.0 as f32 - 0.5;
+                    cursor_pos.y = y as f32 / window_size.1 as f32 - 0.5;
                 },
                 Event::MouseInput(ElementState::Pressed,  MouseButton::Left) => {
                     cursor_startpos = cursor_pos;
@@ -104,7 +104,7 @@ fn main() {
                     cursor_totaloff_old = cursor_totaloff;
                     mouse_pressed = false;
                 },
-                Event::MouseWheel(MouseScrollDelta::LineDelta(_, lines)) => {
+                Event::MouseWheel(MouseScrollDelta::LineDelta(_, lines), _) => {
                     scale *= f32::powf(1.1, lines);
                     //println!("scroll: {}, scale {}", lines, scale);
                     mouse_scrolled = true;
