@@ -7,5 +7,6 @@ uniform usampler2DArray tex;
 
 void main() {
     color = texture(tex, vec3(v_tex_coords, 0));
-    color = vec4(1,0.6,1,1);
+    //color = vec4(v_tex_coords, 0, 0);
+    //color = vec4(1,0.6,1,1);
 }
