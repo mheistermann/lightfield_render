@@ -12,8 +12,8 @@ use glium::program::{ProgramCreationError, ProgramCreationInput};
 use glium::backend::Facade;
 
 use notify;
-use notify::{RecommendedWatcher, Error, Watcher, Event, op};
-use std::sync::mpsc::{channel, Receiver, TryRecvError};
+use notify::{Error, Event, RecommendedWatcher, Watcher, op};
+use std::sync::mpsc::{Receiver, TryRecvError, channel};
 
 #[derive(Debug)]
 pub enum ProgramError {
@@ -46,7 +46,9 @@ fn slurp(filename: &str) -> io::Result<String> {
 }
 
 impl<'a> ProgramInfo<'a> {
-    pub fn create<F>(&self, facade: &F) -> Result<Program, ProgramError>  where F: Facade {
+    pub fn create<F>(&self, facade: &F) -> Result<Program, ProgramError>
+        where F: Facade
+    {
         let vertex_shader: String = try!(slurp(self.vertex_shader_file));
         let fragment_shader: String = try!(slurp(self.fragment_shader_file));
         let geom_content;
@@ -75,36 +77,36 @@ impl<'a, F: Facade + 'a> ReloadingProgram<'a, F> {
                        vertex_shader_file: &'a str,
                        fragment_shader_file: &'a str,
                        geometry_shader_file: Option<&'a str>)
-        -> ReloadingProgram<'a, F>
+                       -> ReloadingProgram<'a, F>
         where F: Facade
-        {
-            let (tx, rx) = channel();
-            let w: Result<RecommendedWatcher, Error> = Watcher::new(tx);
-            let mut watcher = w.unwrap();
-            watcher.watch("shaders"); // XXX TODO FIXME
-            watcher.watch(&vertex_shader_file).unwrap();
-            watcher.watch(&fragment_shader_file).unwrap();
-            geometry_shader_file.map(|x| watcher.watch(x).unwrap());
-            let info = ProgramInfo {
-                vertex_shader_file: vertex_shader_file,
-                fragment_shader_file: fragment_shader_file,
-                geometry_shader_file: geometry_shader_file,
-            };
-            return ReloadingProgram {
-                facade: facade,
-                watcher: watcher,
-                watcher_rx: rx,
-                current: info.create(facade),
-                info: info,
-            };
-        }
+    {
+        let (tx, rx) = channel();
+        let w: Result<RecommendedWatcher, Error> = Watcher::new(tx);
+        let mut watcher = w.unwrap();
+        watcher.watch("shaders"); // XXX TODO FIXME
+        watcher.watch(&vertex_shader_file).unwrap();
+        watcher.watch(&fragment_shader_file).unwrap();
+        geometry_shader_file.map(|x| watcher.watch(x).unwrap());
+        let info = ProgramInfo {
+            vertex_shader_file: vertex_shader_file,
+            fragment_shader_file: fragment_shader_file,
+            geometry_shader_file: geometry_shader_file,
+        };
+        return ReloadingProgram {
+            facade: facade,
+            watcher: watcher,
+            watcher_rx: rx,
+            current: info.create(facade),
+            info: info,
+        };
+    }
     pub fn current(&mut self) -> &Result<Program, ProgramError> {
         let mut needs_recompile = false;
         loop {
             match self.watcher_rx.try_recv() {
-                Err(TryRecvError::Empty) => { break},
-                Err(TryRecvError::Disconnected) => { panic!("watcher disconnected")},
-                Ok(Event{path, op}) => {
+                Err(TryRecvError::Empty) => break,
+                Err(TryRecvError::Disconnected) => panic!("watcher disconnected"),
+                Ok(Event { path, op }) => {
                     println!("{:?}", op);
                     needs_recompile = match op {
                         Ok(op::RENAME) => true,
