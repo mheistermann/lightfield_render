@@ -6,6 +6,7 @@ version = "0.1.0"
 [dependencies]
 cgmath = "0.9.1"
 image = "*"
+lightfield_loader = "0.3.0"
 notify = "^2.5.0"
 zip = "*"
 

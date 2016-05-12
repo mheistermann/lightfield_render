@@ -4,12 +4,8 @@
 
 Attempt at writing a simple OpenGL Lightfield renderer with Glium
 
-Warning: This crate uses a local modified copy of glium, currently not usable!
-
-
-## Ideas
-
-* Refactor to use the lightfield_loader crate
+Warning: This crate uses a modified copy of glium available at
+https://github.com/mheistermann/glium
 
 ## License
 

@@ -4,6 +4,7 @@ extern crate image;
 extern crate zip;
 extern crate cgmath;
 extern crate notify;
+extern crate lightfield_loader;
 
 use cgmath::{Vector2, Vector3, Vector4};
 use cgmath::{Basis3};
@@ -19,8 +20,8 @@ use glium::debug::DebugCallbackBehavior;
 use glium::uniforms::Sampler;
 //use glium::buffer::{Buffer, BufferMode, BufferSlice};
 
-mod lightfield;
-use lightfield::Lightfield;
+mod lightfield_texture;
+use lightfield_texture::LightfieldTexture;
 
 mod reloading_program;
 use reloading_program::ReloadingProgram;
@@ -54,8 +55,8 @@ fn main() {
 
     let mut reloading_program = ReloadingProgram::from_source(&display, "shaders/lightfield.vsh", "shaders/lightfield.fsh", None);
 
-    let lf = Lightfield::new(&display, "chess.jpg.zip");
-    let lf_sampler = Sampler::new(&lf.tex);
+    let lf_tex= LightfieldTexture::new(&display, "chess.jpg.zip");
+    let lf_sampler = Sampler::new(&lf_tex.tex);
 
     let mut cursor_pos          = Vector2::new(0f32, 0f32);
     let mut cursor_startpos     = Vector2::new(0f32, 0f32);
