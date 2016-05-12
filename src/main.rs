@@ -5,6 +5,9 @@ extern crate zip;
 extern crate cgmath;
 extern crate notify;
 extern crate lightfield_loader;
+#[macro_use]
+extern crate log;
+extern crate env_logger;
 
 use cgmath::{Vector2, Vector3, Vector4};
 use cgmath::Basis3;
@@ -29,6 +32,9 @@ use reloading_program::ReloadingProgram;
 
 
 fn main() {
+    env_logger::init().unwrap();
+    info!("starting up");
+
     use glium::{DisplayBuild, Surface};
     let display = glium::glutin::WindowBuilder::new()
                       .with_vsync()
