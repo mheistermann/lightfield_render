@@ -1,11 +1,13 @@
 [package]
-name = "gliumtut"
-version = "0.1.0"
 authors = ["Martin Heistermann <git@mheistermann.de>"]
+name = "lightfield_render"
+version = "0.1.0"
 
 [dependencies]
-glium = { path = "../glium" }
+cgmath = "0.9.1"
 image = "*"
-zip = "*"
-cgmath = "*"
 notify = "^2.5.0"
+zip = "*"
+
+[dependencies.glium]
+path = "../glium"

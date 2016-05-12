@@ -2,7 +2,7 @@
 name = "gliumtut"
 version = "0.1.0"
 dependencies = [
- "cgmath 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cgmath 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "glium 0.13.5",
  "image 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "notify 2.5.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -95,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "cgmath"
-version = "0.7.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "num 0.1.31 (registry+https://github.com/rust-lang/crates.io-index)",
