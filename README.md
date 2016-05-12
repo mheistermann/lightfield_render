@@ -4,6 +4,8 @@
 
 Attempt at writing a simple OpenGL Lightfield renderer with Glium
 
+Warning: This crate uses a local modified copy of glium, currently not usable!
+
 
 ## Ideas
 
