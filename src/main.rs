@@ -5,7 +5,7 @@ extern crate zip;
 extern crate cgmath;
 extern crate notify;
 
-use cgmath::{Vector, Vector2, Vector3, Vector4};
+use cgmath::{Vector2, Vector3, Vector4};
 use cgmath::{Basis3};
 use cgmath::{Matrix, SquareMatrix, Matrix3, Matrix4};
 use cgmath::{Angle, Rad, Deg};
