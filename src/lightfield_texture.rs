@@ -47,6 +47,10 @@ impl LightfieldTexture {
             let image= &view.image;
             assert!(image.width() == width);
             assert!(image.height() == height);
+            match image {
+                &DynamicImage::ImageRgb8(_) => {},
+                _ => { panic!("Cannot handle this image type"); },
+            }
             let layer = 0; // iy*nx+ix;
             println!("loading layer {}", layer);
             assert!(layer<n);
