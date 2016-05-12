@@ -13,16 +13,16 @@ use std::mem;
 use lightfield_loader::{Lightfield, LightfieldView};
 
 use glium::backend::Facade;
-use glium::texture::{MipmapsOption, UncompressedUintFormat};
+use glium::texture::{MipmapsOption, UncompressedFloatFormat};
 use glium::texture::pixel_buffer::PixelBuffer;
-use glium::texture::unsigned_texture2d_array::UnsignedTexture2dArray;
+use glium::texture::texture2d_array::Texture2dArray;
 use std::iter::FromIterator;
 
 use image::{DynamicImage, GenericImage, ImageFormat, Pixel, Rgb};
 
 
 pub struct LightfieldTexture {
-    pub tex: UnsignedTexture2dArray,
+    pub tex: Texture2dArray,
 }
 
 impl LightfieldTexture {
@@ -39,12 +39,12 @@ impl LightfieldTexture {
         let height = img0.height();
         let num_pixels = (width * height) as usize;
 
-        let tex = UnsignedTexture2dArray::empty_with_format(facade,
-                                                            UncompressedUintFormat::U8U8U8,
-                                                            MipmapsOption::NoMipmap,
-                                                            width,
-                                                            height,
-                                                            n)
+        let tex = Texture2dArray::empty_with_format(facade,
+                                                    UncompressedFloatFormat::U8U8U8,
+                                                    MipmapsOption::NoMipmap,
+                                                    width,
+                                                    height,
+                                                    n)
                       .unwrap();
 
         for view in &lf.views {
@@ -72,7 +72,8 @@ impl LightfieldTexture {
             let pixel_tuples = unsafe {mem::transmute::<&[u8], &[(u8, u8, u8)]>(pixels)};
             buffer.write(pixel_tuples);
             */
-            let tuples: Vec<(u8,u8,u8)> = Vec::from_iter(pixels.chunks(3).map(|v| (v[0], v[1], v[2])));
+            let rgb_iter = pixels.chunks(3).map(|v| (v[0], v[1], v[2]));
+            let tuples: Vec<(u8,u8,u8)> = Vec::from_iter(rgb_iter);
             println!("pixels: {}", pixels.len());
             println!("tuples: {}", tuples.len());
             buffer.write(tuples.as_slice());
@@ -82,7 +83,7 @@ impl LightfieldTexture {
                                                           layer..layer + 1);
             break; // XXX debug
         }
-        unsafe {tex.generate_mipmaps()};
+        unsafe { tex.generate_mipmaps() };
         LightfieldTexture { tex: tex }
     }
 }

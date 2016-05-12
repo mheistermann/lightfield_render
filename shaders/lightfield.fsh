@@ -3,7 +3,7 @@
 in vec2 v_tex_coords;
 out vec4 color;
 
-uniform usampler2DArray tex;
+uniform sampler2DArray tex;
 
 void main() {
     color = texture(tex, vec3(v_tex_coords, 0));
