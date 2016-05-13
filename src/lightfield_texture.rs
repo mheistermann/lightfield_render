@@ -59,7 +59,6 @@ impl LightfieldTexture {
                                                           0..height,
                                                           layeridx..layeridx + 1);
         }
-        unsafe { tex.generate_mipmaps() };
         LightfieldTexture { tex: tex }
     }
 }
